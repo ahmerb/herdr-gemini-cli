@@ -1,0 +1,76 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-session-start",
+            "description": "Reports session ID, resume command, and idle state to Herdr"
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-before-agent",
+            "description": "Reports working state to Herdr on turn start"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-notification",
+            "description": "Reports blocked state to Herdr when waiting for user permission"
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-before-tool",
+            "description": "Reports working state to Herdr when approved tool executes"
+          }
+        ]
+      }
+    ],
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-after-agent",
+            "description": "Reports idle state to Herdr on turn completion"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${extensionPath}/dist/hooks/dispatcher.js\"",
+            "name": "herdr-session-end",
+            "description": "Releases pane ownership in Herdr when session terminates"
+          }
+        ]
+      }
+    ]
+  }
+}

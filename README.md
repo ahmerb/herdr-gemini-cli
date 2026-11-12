@@ -8,6 +8,9 @@
 
 `herdr-gemini-cli` brings native, agent-aware multiplexing and session management to **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** inside **[Herdr](https://herdr.dev)**. It enables real-time status tracking in Herdr's sidebar and status bar, automated session resumption on restart, and non-blocking notification alerts when Gemini CLI is waiting for user confirmation.
 
+![Herdr Gemini CLI Integration](screenshot.png)
+*Herdr sidebar tracking multiple Gemini CLI sessions across lifecycle states: `x` (blocked waiting for tool approval), `o` (idle), and `◐` (actively working).*
+
 > [!NOTE]
 > This project is human-supervised, test-covered, but ultimately vibe-coded. Use at your own risk.
 

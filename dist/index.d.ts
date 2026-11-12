@@ -1,5 +1,4 @@
-export { readStdin, runHook } from './hooks/dispatcher.js';
-export { runDoctor } from './cli/doctor.js';
+import { SpawnSyncReturns } from 'child_process';
 
 type HookEventName = "SessionStart" | "SessionEnd" | "BeforeAgent" | "AfterAgent" | "BeforeModel" | "AfterModel" | "BeforeToolSelection" | "BeforeTool" | "AfterTool" | "Notification";
 interface BaseHookInput {
@@ -107,4 +106,20 @@ declare class HerdrClient {
 
 declare function handleHook(input: GeminiHookInput, client?: HerdrClient): Promise<GeminiHookOutput>;
 
-export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, handleHook };
+declare function readStdin(): Promise<string>;
+declare function runHook(): Promise<void>;
+
+/** Upper bound for each Herdr invocation the doctor makes. */
+declare const DOCTOR_TIMEOUT_MS = 5000;
+interface DoctorOptions {
+    client?: HerdrClient;
+    timeoutMs?: number;
+}
+/**
+ * Returns a human-readable description of why a spawnSync call failed, or
+ * null if the process ran and exited with status 0.
+ */
+declare function describeSpawnFailure(res: SpawnSyncReturns<string>, timeoutMs: number): string | null;
+declare function runDoctor(options?: DoctorOptions): void;
+
+export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, DOCTOR_TIMEOUT_MS, type DoctorOptions, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, describeSpawnFailure, handleHook, readStdin, runDoctor, runHook };

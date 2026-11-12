@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/ahmerb/herdr-gemini-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ahmerb/herdr-gemini-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Vibe Coded](https://img.shields.io/badge/vibe-coded-ff69b4)
+![Vibe Coded](https://img.shields.io/badge/vibe--coded-ff69b4)
 
 > [!NOTE]
-> This project was entirely vibe coded. THE SOFTWARE IS PROVIDED "AS IS", AND ALSO "AS VIBED", WITHOUT WARRANTY OF ANY KIND, INCLUDING BUT NOT LIMITED TO THE WARRANTY THAT ANY HUMAN HAS READ IT. Use at your own peril.
+> This project is AI-written, human-supervised, test-covered, but ultimately vibe-coded. THE SOFTWARE IS PROVIDED "AS IS", AND ALSO "AS VIBED", WITHOUT WARRANTY OF ANY KIND, INCLUDING BUT NOT LIMITED TO THE WARRANTY THAT ANY HUMAN HAS READ IT.
 
 **Herdr integration extension for Google Gemini CLI.**
 

@@ -1,5 +1,7 @@
+import { H as HerdrClient } from './doctor-k0ewUVIW.js';
+export { D as DOCTOR_TIMEOUT_MS, a as DoctorOptions, b as HerdrAgentState, c as HerdrClientConfig, d as HerdrEnvironment, R as ReleaseAgentOptions, e as ReportAgentOptions, f as describeSpawnFailure, r as runDoctor } from './doctor-k0ewUVIW.js';
 export { readStdin, runHook } from './hooks/dispatcher.js';
-export { runDoctor } from './cli/doctor.js';
+import 'child_process';
 
 type HookEventName = "SessionStart" | "SessionEnd" | "BeforeAgent" | "AfterAgent" | "BeforeModel" | "AfterModel" | "BeforeToolSelection" | "BeforeTool" | "AfterTool" | "Notification";
 interface BaseHookInput {
@@ -63,48 +65,6 @@ interface GeminiHookOutput {
     hookSpecificOutput?: Record<string, unknown>;
 }
 
-type HerdrAgentState = "working" | "idle" | "blocked";
-interface HerdrEnvironment {
-    isHerdr: boolean;
-    paneId: string | null;
-    binPath: string | null;
-    socketPath: string | null;
-}
-interface ReportAgentOptions {
-    state: HerdrAgentState;
-    message?: string;
-    sessionId?: string;
-    resumeArgv?: string[];
-    seq?: number;
-}
-interface ReleaseAgentOptions {
-    seq?: number;
-}
-interface HerdrClientConfig {
-    agentName?: string;
-    sourceId?: string;
-    execTimeoutMs?: number;
-    env?: NodeJS.ProcessEnv;
-}
-
-declare class HerdrClient {
-    readonly agentName: string;
-    readonly sourceId: string;
-    readonly execTimeoutMs: number;
-    private readonly env;
-    private lastSeq;
-    constructor(config?: HerdrClientConfig);
-    getEnvironment(): HerdrEnvironment;
-    isHerdrActive(): boolean;
-    nextSeq(): number;
-    buildResumeCommand(sessionId: string): string[];
-    buildReportArgs(options: ReportAgentOptions): string[];
-    buildReleaseArgs(options?: ReleaseAgentOptions): string[];
-    reportAgent(options: ReportAgentOptions): Promise<boolean>;
-    releaseAgent(options?: ReleaseAgentOptions): Promise<boolean>;
-    private execHerdr;
-}
-
 declare function handleHook(input: GeminiHookInput, client?: HerdrClient): Promise<GeminiHookOutput>;
 
-export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, handleHook };
+export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, type GeminiHookInput, type GeminiHookOutput, HerdrClient, type HookEventName, type NotificationInput, type SessionEndInput, type SessionStartInput, handleHook };

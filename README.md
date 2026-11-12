@@ -101,6 +101,8 @@ Herdr uses an in-band, push-based reporting architecture. Gemini CLI hooks trigg
 | **`AfterAgent`** | Model finishes turn; awaiting next prompt | `idle` | Session ID |
 | **`SessionEnd`** | CLI exits (`/exit`, `Ctrl+D`, clear) | *(released)* | Executes `pane release-agent` |
 
+> **Known limitation:** Gemini CLI fires no hook when a tool permission prompt is denied or cancelled, so the pane stays `blocked` until the next prompt is submitted.
+
 ### Sequence Numbering (`--seq`)
 
 Herdr requires monotonically increasing sequence numbers to reject out-of-order or stale events. `herdr-gemini-cli` uses microsecond-resolution monotonic counters to guarantee strict ordering across asynchronous turns.

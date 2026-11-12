@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import * as path from "path";
-import { runDoctor } from "./doctor.js";
+import { runDoctor } from "./diagnostics.js";
 import { HerdrClient } from "../herdr/client.js";
 
 let tmp: string;

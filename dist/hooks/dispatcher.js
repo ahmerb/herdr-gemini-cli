@@ -1,29 +1,4 @@
 "use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/hooks/dispatcher.ts
-var dispatcher_exports = {};
-__export(dispatcher_exports, {
-  readStdin: () => readStdin,
-  runHook: () => runHook
-});
-module.exports = __toCommonJS(dispatcher_exports);
 
 // src/herdr/client.ts
 var import_child_process = require("child_process");
@@ -226,7 +201,7 @@ async function handleHook(input, client = new HerdrClient()) {
   return {};
 }
 
-// src/hooks/dispatcher.ts
+// src/hooks/runner.ts
 async function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -262,12 +237,7 @@ async function runHook() {
     process.stdout.write(JSON.stringify({}) + "\n");
   }
 }
-if (require.main === module || require.main?.filename.endsWith("dispatcher.js")) {
-  runHook();
-}
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  readStdin,
-  runHook
-});
+
+// src/hooks/dispatcher.ts
+void runHook();
 //# sourceMappingURL=dispatcher.js.map

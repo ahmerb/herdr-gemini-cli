@@ -231,7 +231,7 @@ async function handleHook(input, client = new HerdrClient()) {
   return {};
 }
 
-// src/hooks/dispatcher.ts
+// src/hooks/runner.ts
 async function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -267,11 +267,8 @@ async function runHook() {
     process.stdout.write(JSON.stringify({}) + "\n");
   }
 }
-if (require.main === module || require.main?.filename.endsWith("dispatcher.js")) {
-  runHook();
-}
 
-// src/cli/doctor.ts
+// src/cli/diagnostics.ts
 var import_child_process2 = require("child_process");
 var DOCTOR_TIMEOUT_MS = 5e3;
 function describeSpawnFailure(res, timeoutMs) {
@@ -346,9 +343,6 @@ function runDoctor(options = {}) {
     console.log(`  \u274C Error testing report: ${err instanceof Error ? err.message : String(err)}`);
   }
   console.log("\nDoctor check completed.");
-}
-if (require.main === module || require.main?.filename.endsWith("doctor.js") || require.main?.filename.endsWith("herdr-gemini-cli.js")) {
-  runDoctor();
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

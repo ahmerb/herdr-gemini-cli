@@ -109,6 +109,23 @@ describe("HerdrClient", () => {
     ]);
   });
 
+  it("falls back to a bare resume command for unsafe session IDs", () => {
+    const client = new HerdrClient({ env: {} });
+
+    expect(client.buildResumeCommand("")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("   ")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("abc'def")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("abc\x00def")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("abc\ndef")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("abc\x1fdef")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("abc\x7fdef")).toEqual(["gemini"]);
+    expect(client.buildResumeCommand("  abc-123  ")).toEqual([
+      "gemini",
+      "--resume",
+      "abc-123",
+    ]);
+  });
+
   it("builds correct report-agent arguments for blocked state with message", () => {
     const client = new HerdrClient({
       env: {

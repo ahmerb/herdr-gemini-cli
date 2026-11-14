@@ -65,3 +65,19 @@ command = ["sh", "plugin/open-popup.sh", "reinstall-extension"]
 id = "remove-extension"
 title = "Gemini: remove extension"
 command = ["sh", "plugin/open-popup.sh", "remove-extension"]
+
+# "Gemini: doctor": a popup that checks Herdr, node, gemini, the Gemini
+# extension and the socket. The action just opens the popup entrypoint.
+[[panes]]
+id = "doctor"
+title = "Gemini doctor"
+placement = "popup"
+width = "80%"
+height = "80%"
+command = ["sh", "plugin/node.sh", "dist/plugin/commands/doctor.js"]
+
+[[actions]]
+id = "doctor"
+title = "Gemini: doctor"
+contexts = ["pane"]
+command = ["sh", "plugin/open-popup.sh", "doctor"]

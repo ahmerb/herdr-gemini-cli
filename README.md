@@ -158,7 +158,20 @@ If `gemini` isn't found, the popup says so. Install Gemini CLI, then run `herdr 
 
 ### Doctor
 
-_Coming soon ([#9](https://github.com/ahmerb/herdr-gemini-cli/issues/9))._
+**Gemini: doctor** (`herdr-gemini-cli.doctor`) opens a popup that checks the whole setup and prints ✅ or ❌ per check, each ❌ with a one-line fix:
+
+- Herdr version (`$HERDR_BIN_PATH --version`)
+- the Node.js running the plugin (path and version; warns below Node 20)
+- the `node` / `gemini` paths recorded at install in `plugin/.paths` (absent for a `herdr plugin link`ed checkout, which is fine)
+- that the Herdr socket can be reached, and which panes are registered as `gemini-cli` agents, with their states
+- `gemini --version`
+- that the `herdr-gemini-cli` Gemini extension is installed (version, install type and ref), and that its version matches the plugin
+
+If the pane under the popup is a Gemini CLI pane, the doctor also sends a test `report-agent` with that pane's current state, so what Herdr shows doesn't change. Over any other pane (a shell, or another agent) it only makes read-only calls, so it never takes that pane over. Press any key to close the popup.
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.doctor
+```
 
 ### Session picker
 
@@ -182,14 +195,17 @@ Suggested bindings (none clash with Herdr's defaults or its example `prefix+alt+
 | :--- | :--- | :--- |
 | `prefix+alt+u` | `herdr-gemini-cli.clear-blocked` | Clear blocked state |
 | `prefix+alt+n` | `herdr-gemini-cli.new-pane` | New Gemini pane |
-| `prefix+alt+d` | `herdr-gemini-cli.doctor` | Doctor _(coming soon)_ |
+| `prefix+alt+d` | `herdr-gemini-cli.doctor` | Doctor |
 | `prefix+alt+r` | `herdr-gemini-cli.resume-session` | Session picker _(coming soon)_ |
 
 ---
 
 ## Diagnostics & Troubleshooting
 
-Run the included doctor utility inside your terminal to validate environment detection and test reporting:
+There are two doctors:
+
+- **Plugin doctor** (inside Herdr, recommended): run `herdr plugin action invoke herdr-gemini-cli.doctor`, or press `prefix+alt+d` if you added the [keybinding](#keybindings). It checks Herdr, Node.js, Gemini CLI, the Gemini extension, the Herdr socket and the registered Gemini panes (see [Doctor](#doctor)).
+- **CLI doctor**: run inside the Gemini CLI pane's shell (or any Herdr pane) to check environment detection and test reporting from that pane:
 
 ```bash
 # If cloned locally:
@@ -199,7 +215,31 @@ Run the included doctor utility inside your terminal to validate environment det
 npx herdr-gemini-cli
 ```
 
-**Example Doctor Output (Inside Herdr):**
+Note that the CLI doctor reports `idle` as a `gemini-cli` agent on the pane it runs in.
+
+**Example plugin doctor output:**
+
+```text
+=== Herdr Gemini CLI doctor (plugin 0.1.0) ===
+
+➖ Focused pane: w3:p2 (agent: gemini-cli, status: idle)
+✅ Herdr: herdr 0.9.5 (/home/user/.local/bin/herdr)
+✅ Node.js: v22.12.0 (/home/user/.nvm/versions/node/v22.12.0/bin/node)
+✅ Recorded GEMINI_BIN: /home/user/.nvm/versions/node/v22.12.0/bin/gemini
+✅ Recorded NODE_BIN: /home/user/.nvm/versions/node/v22.12.0/bin/node
+✅ Herdr socket: reachable (/home/user/.config/herdr/herdr.sock)
+✅ Gemini agents: 1 pane
+     w3:p2  idle  /home/user/project
+✅ Test report: delivered to w3:p2 (state: idle)
+✅ Gemini CLI: 0.68.0
+❌ Gemini extension: herdr-gemini-cli is not installed
+   Fix: run Gemini: reinstall extension (herdr-gemini-cli.reinstall-extension)
+
+1 problem(s), 0 warning(s) found.
+Press any key to close
+```
+
+**Example CLI doctor output (inside Herdr):**
 
 ```text
 === Herdr Gemini CLI Integration Doctor ===

@@ -34,9 +34,21 @@ Only one checkout can be linked at a time: the plugin id `herdr-gemini-cli` and 
 
 Follow these steps to manually test and inspect the integration in a live environment:
 
-### Step 1: Run the Built-In Doctor
+### Step 1: Run the Built-In Doctors
 
-Verify that the integration correctly identifies your Herdr environment and can invoke the Herdr binary:
+**Plugin doctor** (needs the plugin linked or installed, see Step 7): open it over a pane with `herdr plugin action invoke herdr-gemini-cli.doctor` (or `prefix+alt+d`). To run it without Herdr's popup, e.g. while developing:
+
+```bash
+HERDR_PLUGIN_CONTEXT_JSON='{"focused_pane_id":"<scratch pane id>"}' node dist/plugin/commands/doctor.js </dev/null
+```
+
+**Expected Output:**
+- A ✅/❌ line per check (Herdr version, Node.js, recorded paths, Herdr socket, `gemini-cli` panes and states, `gemini --version`, the `herdr-gemini-cli` extension's version/type/ref), each ❌ with a `Fix:` line.
+- Over a `gemini-cli` pane: `✅ Test report: delivered to <pane> (state: <its current state>)`, and the pane's state is unchanged.
+- Over any other pane: `➖ Test report: skipped (... checked read-only)`. Confirm with `herdr pane get <pane>` that its agent and state did not change.
+- Ends with `Press any key to close` and waits for a key (only when stdin is a TTY).
+
+**CLI doctor**: verify that the integration identifies your Herdr environment from inside a pane and can invoke the Herdr binary:
 
 ```bash
 ./bin/herdr-gemini-cli.js
@@ -45,7 +57,7 @@ Verify that the integration correctly identifies your Herdr environment and can 
 **Expected Output (Inside Herdr):**
 - Displays `HERDR_ENV: 1`, active pane ID, binary path, and socket path.
 - Verifies Herdr binary execution (`herdr --version`).
-- Emits a test report ping to Herdr: `✅ Test report delivered successfully to Herdr!`.
+- Emits a test report ping to Herdr (as `idle`, agent `gemini-cli`, on its own pane): `✅ Test report delivered successfully to Herdr!`.
 
 ---
 
@@ -165,5 +177,5 @@ Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin l
   Release the agent and close the scratch pane afterwards.
 - **New Gemini pane:** from a pane whose directory isn't the plugin root, run `herdr plugin action invoke herdr-gemini-cli.new-pane`. A focused split opens on the right, in that directory, running `gemini` (`herdr pane list` shows it with `agent: gemini`). Exiting `gemini` leaves the pane open at its shell. With `gemini` unavailable (no recorded `GEMINI_BIN` in `plugin/.paths` and not on the Herdr server's `PATH`), you get a `gemini not found` notification and no new pane.
 - **Reinstall / remove Gemini extension:** `herdr plugin action invoke herdr-gemini-cli.remove-extension` opens a popup that uninstalls the extension and waits for Enter; afterwards `gemini extensions list` no longer lists `herdr-gemini-cli`, and running it again reports "not installed; nothing to remove" and succeeds. `herdr plugin action invoke herdr-gemini-cli.reinstall-extension` runs `plugin/install-extension.sh` in a popup (from a linked worktree with unpushed commits it falls back to the local path, which fails with a clear message unless Gemini already trusts the folder); the extension is listed again, and running it twice succeeds. With the extension dev-linked (`gemini extensions link .`), reinstall shows the link source and asks `Replace the link? [y/N]`; Enter keeps the link. With `gemini` hidden from the Herdr server's `PATH` and `plugin/.paths` moved aside, both popups show "Gemini CLI ('gemini') not found". Scripts: `plugin/open-popup.sh` (action), `plugin/run-in-popup.sh` (pane wrapper; `HGC_NO_WAIT=1` or a non-TTY stdin skips the Enter wait), `plugin/reinstall-extension.sh`, `plugin/remove-extension.sh`.
-- **Doctor:** _coming soon (#9)._
+- **Doctor:** `herdr plugin action invoke herdr-gemini-cli.doctor` opens the "Gemini doctor" popup (see Step 1). Over a plain shell pane, every check runs and no report is sent (`herdr pane get <pane>` unchanged). Over a pane running Gemini CLI, `✅ Test report: delivered`. With the Gemini extension removed, `❌ Gemini extension: herdr-gemini-cli is not installed` with the reinstall fix hint.
 - **Session picker:** _coming soon (#10)._

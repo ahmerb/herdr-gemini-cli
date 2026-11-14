@@ -118,6 +118,15 @@ declare function runHook(): Promise<void>;
 
 /** Upper bound for each Herdr invocation the doctor makes. */
 declare const DOCTOR_TIMEOUT_MS = 5000;
+/** The parts of a spawnSync result the doctors look at. */
+type CommandResult = Pick<SpawnSyncReturns<string>, "status" | "signal" | "stdout" | "stderr" | "error">;
+/** Runs a command to completion; injectable so doctors can be unit tested. */
+type CommandRunner = (command: string, args: string[], timeoutMs: number) => CommandResult;
+/**
+ * Default CommandRunner: spawnSync with a timeout and no stdin, so a child
+ * can never wait on (or steal) the terminal's input.
+ */
+declare const runCommand: CommandRunner;
 interface DoctorOptions {
     client?: HerdrClient;
     timeoutMs?: number;
@@ -126,7 +135,7 @@ interface DoctorOptions {
  * Returns a human-readable description of why a spawnSync call failed, or
  * null if the process ran and exited with status 0.
  */
-declare function describeSpawnFailure(res: SpawnSyncReturns<string>, timeoutMs: number): string | null;
+declare function describeSpawnFailure(res: CommandResult, timeoutMs: number): string | null;
 declare function runDoctor(options?: DoctorOptions): void;
 
 /** Herdr's effective agent status for a pane. */
@@ -156,4 +165,4 @@ declare function readPluginContext(env?: NodeJS.ProcessEnv): HerdrPluginContext 
 /** Command to run Herdr with (`HERDR_BIN_PATH`, set by Herdr). */
 declare function herdrBin(env?: NodeJS.ProcessEnv): string;
 
-export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, DOCTOR_TIMEOUT_MS, type DoctorOptions, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, type HerdrAgentStatus, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HerdrPluginContext, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, describeSpawnFailure, handleHook, herdrBin, readPluginContext, readStdin, runDoctor, runHook };
+export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, type CommandResult, type CommandRunner, DOCTOR_TIMEOUT_MS, type DoctorOptions, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, type HerdrAgentStatus, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HerdrPluginContext, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, describeSpawnFailure, handleHook, herdrBin, readPluginContext, readStdin, runCommand, runDoctor, runHook };

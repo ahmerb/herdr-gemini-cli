@@ -27,6 +27,7 @@ __export(index_exports, {
   herdrBin: () => herdrBin,
   readPluginContext: () => readPluginContext,
   readStdin: () => readStdin,
+  runCommand: () => runCommand,
   runDoctor: () => runDoctor,
   runHook: () => runHook
 });
@@ -275,6 +276,11 @@ async function runHook() {
 // src/cli/diagnostics.ts
 var import_child_process2 = require("child_process");
 var DOCTOR_TIMEOUT_MS = 5e3;
+var runCommand = (command, args, timeoutMs) => (0, import_child_process2.spawnSync)(command, args, {
+  encoding: "utf8",
+  timeout: timeoutMs,
+  stdio: ["ignore", "pipe", "pipe"]
+});
 function describeSpawnFailure(res, timeoutMs) {
   if (res.error) {
     const code = res.error.code;
@@ -410,6 +416,7 @@ function herdrBin(env = process.env) {
   herdrBin,
   readPluginContext,
   readStdin,
+  runCommand,
   runDoctor,
   runHook
 });

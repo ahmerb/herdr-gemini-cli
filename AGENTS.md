@@ -20,7 +20,7 @@ gemini extensions validate .       # Official Gemini CLI schema validator
 ## Herdr Plugin Layout
 
 - `herdr-plugin.toml`: the Herdr plugin manifest. `tests/plugin/manifest.test.ts` validates it, including that `version` matches `package.json` and `gemini-extension.json`.
-- `plugin/install-extension.sh`: the `[[build]]` step. Installs the Gemini extension from the plugin checkout and records the absolute `node` and `gemini` paths in `plugin/.paths` (gitignored).
+- `plugin/install-extension.sh`: the `[[build]]` step. Installs the Gemini extension from the checkout's git remote at its `HEAD` commit (a local-path install would stop at Gemini's folder-trust prompt, and Gemini 0.68 hangs on that prompt rather than reading EOF), falling back to the local path. It also records the absolute `node` and `gemini` paths in `plugin/.paths` (gitignored).
 - `plugin/lib.sh`: shared sh helpers. `hgc_use_recorded_paths` puts the recorded binaries' directories at the front of `PATH`, because Herdr runs plugin commands with the Herdr server's `PATH`.
 - `plugin/node.sh`: launcher for Node-based commands: `command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]`.
 - `src/plugin/commands/*.ts`: plugin command entry points, built to `dist/plugin/commands/*.js`. Like the hook dispatcher, they must not export anything; put testable logic in `src/plugin/`.
@@ -138,13 +138,13 @@ From a clean state (no plugin linked or installed, no `herdr-gemini-cli` Gemini 
 ```bash
 herdr plugin install ahmerb/herdr-gemini-cli   # add --ref <branch> to test a branch
 herdr plugin list                              # herdr-gemini-cli is listed and enabled
-gemini extensions list                         # herdr-gemini-cli is listed (Type: local)
+gemini extensions list                         # herdr-gemini-cli is listed (Type: git, Ref: <commit>)
 herdr plugin list --plugin herdr-gemini-cli --json   # plugin_root = the managed checkout
 ```
 
 **Expected:**
 - The install preview lists the build step `sh plugin/install-extension.sh`.
-- The build succeeds and prints `Gemini CLI extension installed`.
+- The build succeeds and prints `Gemini CLI extension installed from https://github.com/... at <commit>`.
 - `<plugin_root>/plugin/.paths` records absolute `GEMINI_BIN` and `NODE_BIN` paths.
 - Running `herdr plugin update herdr-gemini-cli` (or installing again) succeeds and replaces the Gemini extension.
 - If `gemini` is not on `PATH`, the install aborts with `Gemini CLI ('gemini') not found on PATH` and the plugin is not registered.

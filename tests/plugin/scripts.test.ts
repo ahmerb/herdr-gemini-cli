@@ -62,10 +62,62 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+const REMOTE = "https://github.com/ahmerb/herdr-gemini-cli";
+const COMMIT = "c05f419662b4932d67512e4bc87d1104dc38ff88";
+
+/** Stub git for a checkout with an origin remote and a HEAD commit. */
+function stubGitCheckout() {
+  stub(
+    "git",
+    `case "$*" in
+       "remote get-url origin") echo "${REMOTE}" ;;
+       "rev-parse HEAD") echo "${COMMIT}" ;;
+       *) exit 1 ;;
+     esac`
+  );
+}
+
+/** Stub gemini that logs its argv (and, for local installs, the stdin answer). */
+const LOGGING_GEMINI = `echo "gemini $*" >> "$CALL_LOG"
+[ "$3" = . ] && { read -r answer || answer=EOF; echo "stdin: $answer" >> "$CALL_LOG"; }
+exit 0`;
+
 describe("plugin/install-extension.sh", () => {
-  it("uninstalls any existing copy, then installs non-interactively", () => {
-    const gemini = stub("gemini", 'echo "gemini $*" >> "$CALL_LOG"');
+  it("installs from the git remote at the checkout's exact commit", () => {
+    const gemini = stub("gemini", LOGGING_GEMINI);
     const node = stub("node", "true");
+    stubGitCheckout();
+
+    const res = run("install-extension.sh");
+
+    expect(res.status, res.stderr).toBe(0);
+    expect(calls()).toEqual([
+      "gemini extensions uninstall herdr-gemini-cli",
+      `gemini extensions install ${REMOTE} --ref ${COMMIT} --consent --skip-settings`,
+    ]);
+    expect(readFileSync(pathsFile, "utf8")).toBe(`GEMINI_BIN=${gemini}\nNODE_BIN=${node}\n`);
+    expect(res.stdout).toContain(`installed from ${REMOTE} at ${COMMIT}`);
+  });
+
+  it("falls back to the local checkout when the git install fails", () => {
+    stub("gemini", `${LOGGING_GEMINI.replace("exit 0", "")}[ "$3" = "${REMOTE}" ] && exit 1; exit 0`);
+    stub("node", "true");
+    stubGitCheckout();
+
+    const res = run("install-extension.sh");
+
+    expect(res.status, res.stderr).toBe(0);
+    expect(calls().slice(1)).toEqual([
+      `gemini extensions install ${REMOTE} --ref ${COMMIT} --consent --skip-settings`,
+      "gemini extensions install . --consent --skip-settings",
+      "stdin: n",
+    ]);
+    expect(res.stderr).toContain("trying the local checkout instead");
+  });
+
+  it("installs from the local checkout, answering no to the trust prompt, without git metadata", () => {
+    stub("gemini", LOGGING_GEMINI);
+    stub("node", "true");
 
     const res = run("install-extension.sh");
 
@@ -73,9 +125,8 @@ describe("plugin/install-extension.sh", () => {
     expect(calls()).toEqual([
       "gemini extensions uninstall herdr-gemini-cli",
       "gemini extensions install . --consent --skip-settings",
+      "stdin: n",
     ]);
-    expect(readFileSync(pathsFile, "utf8")).toBe(`GEMINI_BIN=${gemini}\nNODE_BIN=${node}\n`);
-    expect(res.stdout).toContain("Gemini CLI extension installed");
   });
 
   it("still installs when uninstall fails because nothing is installed", () => {
@@ -84,6 +135,7 @@ describe("plugin/install-extension.sh", () => {
       'echo "gemini $*" >> "$CALL_LOG"; [ "$2" = uninstall ] && { echo "Extension not found." >&2; exit 1; }; exit 0'
     );
     stub("node", "true");
+    stubGitCheckout();
 
     const res = run("install-extension.sh");
 
@@ -111,14 +163,16 @@ describe("plugin/install-extension.sh", () => {
     expect(calls()).toEqual([]);
   });
 
-  it("fails the build when gemini extensions install fails", () => {
+  it("fails the build when every install attempt fails", () => {
     stub("gemini", '[ "$2" = install ] && exit 3; exit 0');
     stub("node", "true");
+    stubGitCheckout();
 
     const res = run("install-extension.sh");
 
     expect(res.status).toBe(1);
     expect(res.stderr).toContain("'gemini extensions install' failed");
+    expect(res.stderr).toContain("gemini extensions install https://github.com/ahmerb/herdr-gemini-cli");
   });
 });
 

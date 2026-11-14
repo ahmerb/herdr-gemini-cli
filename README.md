@@ -46,7 +46,7 @@ herdr plugin install ahmerb/herdr-gemini-cli
 What happens:
 
 1. Herdr clones the repository into its own managed directory and shows a preview of the plugin, including its build step `sh plugin/install-extension.sh`. Confirm to continue.
-2. The build step installs the Gemini CLI extension (the hooks that report pane state) from that same checkout, using `gemini extensions install . --consent --skip-settings`. Any existing `herdr-gemini-cli` Gemini extension is replaced. The step also records where it found `node` and `gemini`, so plugin actions still work when Herdr's own `PATH` lacks them (common with nvm or npm-global installs).
+2. The build step installs the Gemini CLI extension (the hooks that report pane state) at the exact commit Herdr checked out, using `gemini extensions install <repo url> --ref <commit> --consent --skip-settings`. Any existing `herdr-gemini-cli` Gemini extension is replaced. (Installing from Herdr's checkout folder directly would stop at Gemini's folder-trust prompt.) The step also records where it found `node` and `gemini`, so plugin actions still work when Herdr's own `PATH` lacks them (common with nvm or npm-global installs).
 3. Herdr registers the plugin and its actions (see [Herdr plugin](#herdr-plugin)).
 
 Restart any Gemini CLI sessions that were already running so they load the hooks.

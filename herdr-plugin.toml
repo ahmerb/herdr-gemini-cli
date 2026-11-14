@@ -7,7 +7,7 @@
 
 id = "herdr-gemini-cli"
 name = "Herdr Gemini CLI"
-version = "0.1.0"
+version = "0.2.0"
 description = "Gemini CLI integration: live pane state (working, blocked, idle), session resume, and Gemini actions."
 min_herdr_version = "0.9.5"
 platforms = ["linux", "macos"]

@@ -27,7 +27,8 @@
 - **Automatic Pane Cleanup:** Explicitly releases pane ownership when Gemini CLI exits cleanly or clears.
 - **Zero Runtime Dependencies:** Compiles into lightweight, zero-dependency CommonJS artifacts. Does not require `jq`, Python, or `node_modules` at runtime—it runs directly on the ambient Node.js instance powering Gemini CLI.
 - **Dormant Outside Herdr:** Strictly guards execution using `HERDR_ENV=1`. Outside of Herdr, hooks execute dormancy checks and exit in under 5ms with zero side effects.
-- **Built-in Diagnostic Doctor:** Ships with an interactive doctor CLI to verify Herdr socket connectivity, pane status, and reporting delivery.
+- **Herdr Plugin Actions:** [clear a stuck `blocked` state](#clear-blocked-state), [open a new Gemini pane](#new-gemini-pane), [reinstall or remove the Gemini extension](#reinstall--remove-gemini-extension), with [suggested keybindings](#keybindings).
+- **Built-in Diagnostic Doctors:** a [plugin doctor popup](#doctor) that checks Herdr, Node.js, Gemini CLI, the extension and the registered Gemini panes, plus a doctor CLI to verify Herdr socket connectivity, pane status, and reporting delivery from a pane.
 
 ---
 
@@ -220,7 +221,7 @@ Note that the CLI doctor reports `idle` as a `gemini-cli` agent on the pane it r
 **Example plugin doctor output:**
 
 ```text
-=== Herdr Gemini CLI doctor (plugin 0.1.0) ===
+=== Herdr Gemini CLI doctor (plugin 0.2.0) ===
 
 ➖ Focused pane: w3:p2 (agent: gemini-cli, status: idle)
 ✅ Herdr: herdr 0.9.5 (/home/user/.local/bin/herdr)

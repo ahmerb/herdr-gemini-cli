@@ -24,4 +24,10 @@ export interface HerdrClientConfig {
   sourceId?: string;
   execTimeoutMs?: number;
   env?: NodeJS.ProcessEnv;
+  /**
+   * Pane to report on. Defaults to `HERDR_PANE_ID`. Herdr plugin commands set
+   * this from the plugin invocation context, because popups (and actions run
+   * from the CLI) do not target the pane in `HERDR_PANE_ID`.
+   */
+  paneId?: string;
 }

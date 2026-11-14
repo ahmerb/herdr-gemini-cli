@@ -13,6 +13,21 @@ npm run build                      # Bundles standalone CJS to dist/
 gemini extensions validate .       # Official Gemini CLI schema validator
 ```
 
+`dist/` is committed (the Herdr plugin and Gemini extension run it without an npm build), and tsup does not clean it. Rebuild from clean with `rm -rf dist && npm run build` and commit the result.
+
+---
+
+## Herdr Plugin Layout
+
+- `herdr-plugin.toml`: the Herdr plugin manifest. `tests/plugin/manifest.test.ts` validates it, including that `version` matches `package.json` and `gemini-extension.json`.
+- `plugin/install-extension.sh`: the `[[build]]` step. Installs the Gemini extension from the checkout's git remote at its `HEAD` commit (a local-path install would stop at Gemini's folder-trust prompt, and Gemini 0.68 hangs on that prompt rather than reading EOF), falling back to the local path. It also records the absolute `node` and `gemini` paths in `plugin/.paths` (gitignored).
+- `plugin/lib.sh`: shared sh helpers. `hgc_use_recorded_paths` puts the recorded binaries' directories at the front of `PATH`, because Herdr runs plugin commands with the Herdr server's `PATH`.
+- `plugin/node.sh`: launcher for Node-based commands: `command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]`.
+- `src/plugin/commands/*.ts`: plugin command entry points, built to `dist/plugin/commands/*.js`. Like the hook dispatcher, they must not export anything; put testable logic in `src/plugin/`.
+- `src/plugin/context.ts`: parses `HERDR_PLUGIN_CONTEXT_JSON`. Popups don't get `HERDR_PANE_ID`, so target `focused_pane_id` via `new HerdrClient({ paneId })`.
+
+Only one checkout can be linked at a time: the plugin id `herdr-gemini-cli` and the Gemini extension are global to the machine.
+
 ---
 
 ## Manual Verification Runbook
@@ -113,3 +128,37 @@ HERDR_ENV= ./bin/herdr-gemini-cli.js
 **Expected Output:**
 - Displays `Herdr Status: DORMANT (Outside Herdr)`.
 - Exits cleanly (`exit 0`) without invoking any socket or child process calls.
+
+---
+
+### Step 7: Install as a Herdr Plugin
+
+From a clean state (no plugin linked or installed, no `herdr-gemini-cli` Gemini extension):
+
+```bash
+herdr plugin install ahmerb/herdr-gemini-cli   # add --ref <branch> to test a branch
+herdr plugin list                              # herdr-gemini-cli is listed and enabled
+gemini extensions list                         # herdr-gemini-cli is listed (Type: git, Ref: <commit>)
+herdr plugin list --plugin herdr-gemini-cli --json   # plugin_root = the managed checkout
+```
+
+**Expected:**
+- The install preview lists the build step `sh plugin/install-extension.sh`.
+- The build succeeds and prints `Gemini CLI extension installed from https://github.com/... at <commit>`.
+- `<plugin_root>/plugin/.paths` records absolute `GEMINI_BIN` and `NODE_BIN` paths.
+- Running `herdr plugin update herdr-gemini-cli` (or installing again) succeeds and replaces the Gemini extension.
+- If `gemini` is not on `PATH`, the install aborts with `Gemini CLI ('gemini') not found on PATH` and the plugin is not registered.
+
+For local development use `herdr plugin link .` and `gemini extensions link .` instead (`link` skips the build step). Unlink both when done.
+
+---
+
+### Step 8: Herdr Plugin Actions
+
+Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin log list --plugin herdr-gemini-cli` shows each run's output.
+
+- **Clear blocked state:** _coming soon (#6)._
+- **New Gemini pane:** _coming soon (#7)._
+- **Reinstall / remove Gemini extension:** _coming soon (#8)._
+- **Doctor:** _coming soon (#9)._
+- **Session picker:** _coming soon (#10)._

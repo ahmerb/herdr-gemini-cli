@@ -12,6 +12,7 @@ export class HerdrClient {
   public readonly sourceId: string;
   public readonly execTimeoutMs: number;
   private readonly env: NodeJS.ProcessEnv;
+  private readonly paneIdOverride: string | null;
   private lastSeq: number = 0;
 
   constructor(config?: HerdrClientConfig) {
@@ -19,11 +20,12 @@ export class HerdrClient {
     this.agentName = config?.agentName ?? "gemini-cli";
     this.sourceId = config?.sourceId ?? "gemini-cli";
     this.execTimeoutMs = config?.execTimeoutMs ?? 1000;
+    this.paneIdOverride = config?.paneId || null;
   }
 
   public getEnvironment(): HerdrEnvironment {
     const isHerdr = this.env.HERDR_ENV === "1";
-    const paneId = this.env.HERDR_PANE_ID || null;
+    const paneId = this.paneIdOverride ?? (this.env.HERDR_PANE_ID || null);
     const binPath = this.env.HERDR_BIN_PATH || null;
     const socketPath = this.env.HERDR_SOCKET_PATH || null;
 

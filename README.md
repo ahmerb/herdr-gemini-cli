@@ -126,7 +126,13 @@ or bind it to a key (suggested: `prefix+alt+u`, see [Keybindings](#keybindings))
 
 ### New Gemini pane
 
-_Coming soon ([#7](https://github.com/ahmerb/herdr-gemini-cli/issues/7))._
+**Gemini: new pane** (`herdr-gemini-cli.new-pane`) splits the focused pane to the right, in the same directory, focuses the new pane, and starts `gemini` in it:
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.new-pane
+```
+
+The new pane is a normal shell pane with `gemini` typed into it, so the Gemini hooks and session resume work as usual, and exiting Gemini drops you back to the shell. If `gemini` can't be found, Herdr shows a notification and no pane is opened.
 
 ### Reinstall / remove Gemini extension
 
@@ -157,7 +163,7 @@ Suggested bindings (none clash with Herdr's defaults or its example `prefix+alt+
 | Key | Action id | Action |
 | :--- | :--- | :--- |
 | `prefix+alt+u` | `herdr-gemini-cli.clear-blocked` | Clear blocked state |
-| `prefix+alt+n` | `herdr-gemini-cli.new-pane` | New Gemini pane _(coming soon)_ |
+| `prefix+alt+n` | `herdr-gemini-cli.new-pane` | New Gemini pane |
 | `prefix+alt+d` | `herdr-gemini-cli.doctor` | Doctor _(coming soon)_ |
 | `prefix+alt+r` | `herdr-gemini-cli.resume-session` | Session picker _(coming soon)_ |
 

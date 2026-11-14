@@ -163,7 +163,7 @@ Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin l
   3. Invoke the action on a non-Gemini pane, or on a Gemini pane that isn't blocked. **Expected:** nothing changes; the log says `not a Gemini pane` / `is not blocked`.
   4. Session survival: with a fake shell pane Herdr stores no session at all, so check it with a real Gemini session: get it blocked on a tool prompt, deny it, run the action, then `herdr agent get <pane>` must still show the `gemini-cli` `agent_session` (the action passes it along and never releases the pane).
   Release the agent and close the scratch pane afterwards.
-- **New Gemini pane:** _coming soon (#7)._
+- **New Gemini pane:** from a pane whose directory isn't the plugin root, run `herdr plugin action invoke herdr-gemini-cli.new-pane`. A focused split opens on the right, in that directory, running `gemini` (`herdr pane list` shows it with `agent: gemini`). Exiting `gemini` leaves the pane open at its shell. With `gemini` unavailable (no recorded `GEMINI_BIN` in `plugin/.paths` and not on the Herdr server's `PATH`), you get a `gemini not found` notification and no new pane.
 - **Reinstall / remove Gemini extension:** _coming soon (#8)._
 - **Doctor:** _coming soon (#9)._
 - **Session picker:** _coming soon (#10)._

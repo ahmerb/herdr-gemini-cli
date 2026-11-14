@@ -79,14 +79,17 @@ function listOutput(name: string, source: string, type: string) {
   ].join("\n");
 }
 
-/** Stub gemini: logs argv, prints LIST for `extensions list`, succeeds otherwise. */
+/**
+ * Stub gemini: logs argv, prints LIST for `extensions list`, succeeds otherwise.
+ * Like real Gemini 0.68, the list goes to stderr and stdout stays empty.
+ */
 function stubGemini(list: string) {
   // printf is a shell builtin, so the stub needs no `cat` on PATH.
   const quoted = `'${list.replace(/'/g, `'\\''`)}'`;
   return stub(
     "gemini",
     `echo "gemini $*" >> "$CALL_LOG"
-     [ "$2" = list ] && printf '%s' ${quoted}
+     [ "$2" = list ] && printf '%s' ${quoted} >&2
      exit 0`
   );
 }

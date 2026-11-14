@@ -15,8 +15,9 @@ cd "$(dirname "$0")/.."
 hgc_use_recorded_paths
 
 if gemini=$(command -v gemini 2>/dev/null); then
-  # Print the Source line of our extension's block, if it is a link.
-  link=$("$gemini" extensions list </dev/null 2>/dev/null | awk -v name="$HGC_EXTENSION_NAME" '
+  # Print the Source line of our extension's block, if it is a link. Gemini
+  # 0.68 prints the list to stderr (stdout is empty), so read both streams.
+  link=$("$gemini" extensions list </dev/null 2>&1 | awk -v name="$HGC_EXTENSION_NAME" '
     /^[^ \t]/ { mine = index($0, " " name " (") > 0 }
     mine && /^[ \t]+Source: .*\(Type: link\)/ { sub(/^[ \t]+Source: /, ""); print; exit }
   ' || true)

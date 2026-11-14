@@ -21,6 +21,22 @@ command = ["sh", "plugin/install-extension.sh"]
 # Node-based actions and panes start through the launcher:
 #   command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]
 
+# Resets a Gemini pane stuck on `blocked` (e.g. after a denied or cancelled
+# tool permission prompt, which fires no Gemini hook) back to `idle`.
+[[actions]]
+id = "clear-blocked"
+title = "Gemini: clear blocked state"
+contexts = ["pane"]
+command = ["sh", "plugin/node.sh", "dist/plugin/commands/clear-blocked.js"]
+
+# Splits the focused pane to the right (same directory), focuses it, and starts
+# `gemini` in its shell.
+[[actions]]
+id = "new-pane"
+title = "Gemini: new pane"
+contexts = ["pane"]
+command = ["sh", "plugin/new-pane.sh"]
+
 # Reinstall / remove the Gemini CLI extension (#8). Each action opens a popup
 # that runs the script and waits for Enter, since action output only reaches
 # the plugin log.

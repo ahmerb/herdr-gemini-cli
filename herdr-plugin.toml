@@ -20,3 +20,11 @@ command = ["sh", "plugin/install-extension.sh"]
 
 # Node-based actions and panes start through the launcher:
 #   command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]
+
+# Splits the focused pane to the right (same directory), focuses it, and starts
+# `gemini` in its shell.
+[[actions]]
+id = "new-pane"
+title = "Gemini: new pane"
+contexts = ["pane"]
+command = ["sh", "plugin/new-pane.sh"]

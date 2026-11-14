@@ -158,7 +158,7 @@ For local development use `herdr plugin link .` and `gemini extensions link .` i
 Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin log list --plugin herdr-gemini-cli` shows each run's output.
 
 - **Clear blocked state:** _coming soon (#6)._
-- **New Gemini pane:** _coming soon (#7)._
+- **New Gemini pane:** from a pane whose directory isn't the plugin root, run `herdr plugin action invoke herdr-gemini-cli.new-pane`. A focused split opens on the right, in that directory, running `gemini` (`herdr pane list` shows it with `agent: gemini`). Exiting `gemini` leaves the pane open at its shell. With `gemini` unavailable (no recorded `GEMINI_BIN` in `plugin/.paths` and not on the Herdr server's `PATH`), you get a `gemini not found` notification and no new pane.
 - **Reinstall / remove Gemini extension:** _coming soon (#8)._
 - **Doctor:** _coming soon (#9)._
 - **Session picker:** _coming soon (#10)._

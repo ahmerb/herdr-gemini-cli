@@ -87,12 +87,14 @@ gemini extensions link .     # symlink the Gemini extension to this working tree
 
 ### Uninstalling
 
-`herdr plugin uninstall` only removes the Herdr plugin. Remove the Gemini extension separately:
+`herdr plugin uninstall` only removes the Herdr plugin, so remove the Gemini extension first with the "Gemini: remove extension" action (see [Reinstall / remove Gemini extension](#reinstall--remove-gemini-extension)):
 
 ```bash
+herdr plugin action invoke herdr-gemini-cli.remove-extension   # press Enter to close the popup
 herdr plugin uninstall herdr-gemini-cli
-gemini extensions uninstall herdr-gemini-cli
 ```
+
+If the plugin is already gone, remove the extension with Gemini directly: `gemini extensions uninstall herdr-gemini-cli`.
 
 If the Gemini extension stays installed, it keeps reporting pane state whenever you run Gemini CLI inside Herdr. Outside Herdr it does nothing.
 
@@ -110,15 +112,49 @@ Plugin logs (output of each action run) are available via `herdr plugin log list
 
 ### Clear blocked state
 
-_Coming soon ([#6](https://github.com/ahmerb/herdr-gemini-cli/issues/6))._
+Action id: `herdr-gemini-cli.clear-blocked` ("Gemini: clear blocked state").
+
+Gemini CLI fires no hook when you deny or cancel a tool permission prompt, so Herdr keeps showing the pane as `blocked` until you submit the next prompt. Run this action with the stuck Gemini pane focused to set it back to `idle`:
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.clear-blocked
+```
+
+or bind it to a key (suggested: `prefix+alt+u`, see [Keybindings](#keybindings)).
+
+- It only acts on the focused pane, and only when that pane is a Gemini pane (`gemini-cli`) whose status is `blocked`. Otherwise it does nothing and says why in the plugin log.
+- It reports as the same source and agent as the Gemini hooks, with a newer sequence number, and never releases the pane, so the pane's stored session and its `gemini --resume <id>` resume command are kept. The next Gemini hook (e.g. when you submit a prompt) takes over as usual.
+- Herdr may show the cleared pane as `done` rather than `idle` until you look at it, as it does whenever an unfocused agent goes idle.
 
 ### New Gemini pane
 
-_Coming soon ([#7](https://github.com/ahmerb/herdr-gemini-cli/issues/7))._
+**Gemini: new pane** (`herdr-gemini-cli.new-pane`) splits the focused pane to the right, in the same directory, focuses the new pane, and starts `gemini` in it:
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.new-pane
+```
+
+The new pane is a normal shell pane with `gemini` typed into it, so the Gemini hooks and session resume work as usual, and exiting Gemini drops you back to the shell. If `gemini` can't be found, Herdr shows a notification and no pane is opened.
 
 ### Reinstall / remove Gemini extension
 
-_Coming soon ([#8](https://github.com/ahmerb/herdr-gemini-cli/issues/8))._
+Manage the Gemini CLI extension (the hooks that report pane state) without reinstalling the plugin:
+
+| Action id | Title | What it does |
+| :--- | :--- | :--- |
+| `herdr-gemini-cli.reinstall-extension` | Gemini: reinstall extension | Reinstalls the extension at the plugin's version, exactly like the install build step (`plugin/install-extension.sh`). Use it if the extension was removed, or Gemini CLI was installed after the plugin. |
+| `herdr-gemini-cli.remove-extension` | Gemini: remove extension | Runs `gemini extensions uninstall herdr-gemini-cli`. Safe to run when it is not installed. Run it before `herdr plugin uninstall`, which can't remove the extension. |
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.reinstall-extension
+herdr plugin action invoke herdr-gemini-cli.remove-extension
+```
+
+Each action opens a popup that shows the output and stays open until you press Enter. Restart running Gemini CLI sessions afterwards so they load (or unload) the hooks.
+
+If the extension is a development link (`gemini extensions link .`, listed with `Type: link`), reinstalling would replace the link with a copy, so the reinstall popup asks first and keeps the link unless you answer `y`. Remove deletes the link (your working tree is untouched).
+
+If `gemini` isn't found, the popup says so. Install Gemini CLI, then run `herdr plugin update herdr-gemini-cli` (which records its location for plugin actions) or the reinstall action.
 
 ### Doctor
 
@@ -157,8 +193,8 @@ Suggested bindings (none clash with Herdr's defaults or its example `prefix+alt+
 
 | Key | Action id | Action |
 | :--- | :--- | :--- |
-| `prefix+alt+u` | `herdr-gemini-cli.clear-blocked` | Clear blocked state _(coming soon)_ |
-| `prefix+alt+n` | `herdr-gemini-cli.new-pane` | New Gemini pane _(coming soon)_ |
+| `prefix+alt+u` | `herdr-gemini-cli.clear-blocked` | Clear blocked state |
+| `prefix+alt+n` | `herdr-gemini-cli.new-pane` | New Gemini pane |
 | `prefix+alt+d` | `herdr-gemini-cli.doctor` | Doctor |
 | `prefix+alt+r` | `herdr-gemini-cli.resume-session` | Session picker _(coming soon)_ |
 
@@ -239,7 +275,7 @@ Herdr uses an in-band, push-based reporting architecture. Gemini CLI hooks trigg
 | **`AfterAgent`** | Model finishes turn; awaiting next prompt | `idle` | Session ID |
 | **`SessionEnd`** | CLI exits (`/exit`, `Ctrl+D`, clear) | *(released)* | Executes `pane release-agent` |
 
-> **Known limitation:** Gemini CLI fires no hook when a tool permission prompt is denied or cancelled, so the pane stays `blocked` until the next prompt is submitted.
+> **Known limitation:** Gemini CLI fires no hook when a tool permission prompt is denied or cancelled, so the pane stays `blocked` until the next prompt is submitted. Run the [Clear blocked state](#clear-blocked-state) plugin action (`herdr-gemini-cli.clear-blocked`) to reset it to `idle` straight away.
 
 ### Sequence Numbering (`--seq`)
 

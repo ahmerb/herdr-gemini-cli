@@ -21,6 +21,51 @@ command = ["sh", "plugin/install-extension.sh"]
 # Node-based actions and panes start through the launcher:
 #   command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]
 
+# Resets a Gemini pane stuck on `blocked` (e.g. after a denied or cancelled
+# tool permission prompt, which fires no Gemini hook) back to `idle`.
+[[actions]]
+id = "clear-blocked"
+title = "Gemini: clear blocked state"
+contexts = ["pane"]
+command = ["sh", "plugin/node.sh", "dist/plugin/commands/clear-blocked.js"]
+
+# Splits the focused pane to the right (same directory), focuses it, and starts
+# `gemini` in its shell.
+[[actions]]
+id = "new-pane"
+title = "Gemini: new pane"
+contexts = ["pane"]
+command = ["sh", "plugin/new-pane.sh"]
+
+# Reinstall / remove the Gemini CLI extension (#8). Each action opens a popup
+# that runs the script and waits for Enter, since action output only reaches
+# the plugin log.
+[[panes]]
+id = "reinstall-extension"
+title = "Gemini: reinstall extension"
+placement = "popup"
+width = "80%"
+height = "60%"
+command = ["sh", "plugin/run-in-popup.sh", "plugin/reinstall-extension.sh"]
+
+[[panes]]
+id = "remove-extension"
+title = "Gemini: remove extension"
+placement = "popup"
+width = "80%"
+height = "60%"
+command = ["sh", "plugin/run-in-popup.sh", "plugin/remove-extension.sh"]
+
+[[actions]]
+id = "reinstall-extension"
+title = "Gemini: reinstall extension"
+command = ["sh", "plugin/open-popup.sh", "reinstall-extension"]
+
+[[actions]]
+id = "remove-extension"
+title = "Gemini: remove extension"
+command = ["sh", "plugin/open-popup.sh", "remove-extension"]
+
 # "Gemini: doctor": a popup that checks Herdr, node, gemini, the Gemini
 # extension and the socket. The action just opens the popup entrypoint.
 [[panes]]

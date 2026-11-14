@@ -1,0 +1,22 @@
+# Herdr plugin manifest: https://herdr.dev/tui/docs/plugins/
+#
+# `herdr plugin install ahmerb/herdr-gemini-cli` clones this repo, runs the
+# [[build]] step below (which installs the Gemini CLI extension from the same
+# checkout), and registers the plugin. dist/ is committed, so no npm build runs
+# at install time.
+
+id = "herdr-gemini-cli"
+name = "Herdr Gemini CLI"
+version = "0.1.0"
+description = "Gemini CLI integration: live pane state (working, blocked, idle), session resume, and Gemini actions."
+min_herdr_version = "0.9.5"
+platforms = ["linux", "macos"]
+
+# Installs (or reinstalls) the Gemini CLI extension, and records the absolute
+# node/gemini paths so plugin actions work even when they are not on the Herdr
+# server's PATH. Requires `gemini` and `node` on PATH.
+[[build]]
+command = ["sh", "plugin/install-extension.sh"]
+
+# Node-based actions and panes start through the launcher:
+#   command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]

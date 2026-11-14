@@ -84,6 +84,12 @@ interface HerdrClientConfig {
     sourceId?: string;
     execTimeoutMs?: number;
     env?: NodeJS.ProcessEnv;
+    /**
+     * Pane to report on. Defaults to `HERDR_PANE_ID`. Herdr plugin commands set
+     * this from the plugin invocation context, because popups (and actions run
+     * from the CLI) do not target the pane in `HERDR_PANE_ID`.
+     */
+    paneId?: string;
 }
 
 declare class HerdrClient {
@@ -91,6 +97,7 @@ declare class HerdrClient {
     readonly sourceId: string;
     readonly execTimeoutMs: number;
     private readonly env;
+    private readonly paneIdOverride;
     private lastSeq;
     constructor(config?: HerdrClientConfig);
     getEnvironment(): HerdrEnvironment;
@@ -122,4 +129,31 @@ interface DoctorOptions {
 declare function describeSpawnFailure(res: SpawnSyncReturns<string>, timeoutMs: number): string | null;
 declare function runDoctor(options?: DoctorOptions): void;
 
-export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, DOCTOR_TIMEOUT_MS, type DoctorOptions, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, describeSpawnFailure, handleHook, readStdin, runDoctor, runHook };
+/** Herdr's effective agent status for a pane. */
+type HerdrAgentStatus = "idle" | "working" | "blocked" | "done" | "unknown";
+interface HerdrPluginContext {
+    focused_pane_id: string | null;
+    focused_pane_agent: string | null;
+    focused_pane_status: HerdrAgentStatus | null;
+    focused_pane_cwd: string | null;
+    workspace_id: string | null;
+    workspace_label: string | null;
+    workspace_cwd: string | null;
+    tab_id: string | null;
+    tab_label: string | null;
+    invocation_source: string | null;
+    correlation_id: string | null;
+    selected_text: string | null;
+    clicked_url: string | null;
+    link_handler_id: string | null;
+}
+/**
+ * Parses HERDR_PLUGIN_CONTEXT_JSON. Returns null when the variable is missing,
+ * is not valid JSON, or is not a JSON object. Fields with unexpected types are
+ * treated as absent rather than failing the whole context.
+ */
+declare function readPluginContext(env?: NodeJS.ProcessEnv): HerdrPluginContext | null;
+/** Command to run Herdr with (`HERDR_BIN_PATH`, set by Herdr). */
+declare function herdrBin(env?: NodeJS.ProcessEnv): string;
+
+export { type AfterAgentInput, type AfterToolInput, type BaseHookInput, type BeforeAgentInput, type BeforeToolInput, DOCTOR_TIMEOUT_MS, type DoctorOptions, type GeminiHookInput, type GeminiHookOutput, type HerdrAgentState, type HerdrAgentStatus, HerdrClient, type HerdrClientConfig, type HerdrEnvironment, type HerdrPluginContext, type HookEventName, type NotificationInput, type ReleaseAgentOptions, type ReportAgentOptions, type SessionEndInput, type SessionStartInput, describeSpawnFailure, handleHook, herdrBin, readPluginContext, readStdin, runDoctor, runHook };

@@ -24,6 +24,8 @@ __export(index_exports, {
   HerdrClient: () => HerdrClient,
   describeSpawnFailure: () => describeSpawnFailure,
   handleHook: () => handleHook,
+  herdrBin: () => herdrBin,
+  readPluginContext: () => readPluginContext,
   readStdin: () => readStdin,
   runDoctor: () => runDoctor,
   runHook: () => runHook
@@ -37,16 +39,18 @@ var HerdrClient = class {
   sourceId;
   execTimeoutMs;
   env;
+  paneIdOverride;
   lastSeq = 0;
   constructor(config) {
     this.env = config?.env ?? process.env;
     this.agentName = config?.agentName ?? "gemini-cli";
     this.sourceId = config?.sourceId ?? "gemini-cli";
     this.execTimeoutMs = config?.execTimeoutMs ?? 1e3;
+    this.paneIdOverride = config?.paneId || null;
   }
   getEnvironment() {
     const isHerdr = this.env.HERDR_ENV === "1";
-    const paneId = this.env.HERDR_PANE_ID || null;
+    const paneId = this.paneIdOverride ?? (this.env.HERDR_PANE_ID || null);
     const binPath = this.env.HERDR_BIN_PATH || null;
     const socketPath = this.env.HERDR_SOCKET_PATH || null;
     return {
@@ -344,12 +348,67 @@ function runDoctor(options = {}) {
   }
   console.log("\nDoctor check completed.");
 }
+
+// src/plugin/context.ts
+var STRING_FIELDS = [
+  "focused_pane_id",
+  "focused_pane_agent",
+  "focused_pane_cwd",
+  "workspace_id",
+  "workspace_label",
+  "workspace_cwd",
+  "tab_id",
+  "tab_label",
+  "invocation_source",
+  "correlation_id",
+  "selected_text",
+  "clicked_url",
+  "link_handler_id"
+];
+var AGENT_STATUSES = /* @__PURE__ */ new Set([
+  "idle",
+  "working",
+  "blocked",
+  "done",
+  "unknown"
+]);
+function stringOrNull(value) {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+function readPluginContext(env = process.env) {
+  const raw = env.HERDR_PLUGIN_CONTEXT_JSON;
+  if (!raw) {
+    return null;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return null;
+  }
+  const obj = parsed;
+  const context = {};
+  for (const field of STRING_FIELDS) {
+    context[field] = stringOrNull(obj[field]);
+  }
+  const status = stringOrNull(obj.focused_pane_status);
+  context.focused_pane_status = status && AGENT_STATUSES.has(status) ? status : null;
+  return context;
+}
+function herdrBin(env = process.env) {
+  return env.HERDR_BIN_PATH || "herdr";
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   DOCTOR_TIMEOUT_MS,
   HerdrClient,
   describeSpawnFailure,
   handleHook,
+  herdrBin,
+  readPluginContext,
   readStdin,
   runDoctor,
   runHook

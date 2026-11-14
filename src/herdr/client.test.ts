@@ -32,6 +32,31 @@ describe("HerdrClient", () => {
     });
   });
 
+  it("reports on an explicit paneId instead of HERDR_PANE_ID", () => {
+    const client = new HerdrClient({
+      env: {
+        HERDR_ENV: "1",
+        HERDR_PANE_ID: "w1:p1",
+        HERDR_BIN_PATH: "/usr/local/bin/herdr",
+      },
+      paneId: "w1:p7",
+    });
+
+    expect(client.getEnvironment().paneId).toBe("w1:p7");
+    expect(client.buildReportArgs({ state: "idle", seq: 1 })[2]).toBe("w1:p7");
+    expect(client.buildReleaseArgs({ seq: 2 })[2]).toBe("w1:p7");
+  });
+
+  it("is active with an explicit paneId even when HERDR_PANE_ID is unset", () => {
+    // Herdr popups do not export HERDR_PANE_ID.
+    const client = new HerdrClient({
+      env: { HERDR_ENV: "1", HERDR_BIN_PATH: "/usr/local/bin/herdr" },
+      paneId: "w2:p3",
+    });
+
+    expect(client.isHerdrActive()).toBe(true);
+  });
+
   it("generates strictly increasing sequence numbers", () => {
     const client = new HerdrClient({ env: {} });
     const seq1 = client.nextSeq();

@@ -2,3 +2,5 @@ node_modules/
 coverage/
 *.log
 .DS_Store
+# Written by plugin/install-extension.sh at install time
+plugin/.paths

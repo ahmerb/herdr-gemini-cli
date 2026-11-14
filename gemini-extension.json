@@ -2,6 +2,6 @@
   "name": "herdr-gemini-cli",
   "version": "0.1.0",
   "description": "Herdr terminal multiplexer integration extension for Gemini CLI",
-  "author": "herdr-gemini-cli contributors",
+  "author": "Ahmer Butt (https://github.com/ahmerb)",
   "license": "MIT"
 }

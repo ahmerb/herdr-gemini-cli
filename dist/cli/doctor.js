@@ -7,16 +7,18 @@ var HerdrClient = class {
   sourceId;
   execTimeoutMs;
   env;
+  paneIdOverride;
   lastSeq = 0;
   constructor(config) {
     this.env = config?.env ?? process.env;
     this.agentName = config?.agentName ?? "gemini-cli";
     this.sourceId = config?.sourceId ?? "gemini-cli";
     this.execTimeoutMs = config?.execTimeoutMs ?? 1e3;
+    this.paneIdOverride = config?.paneId || null;
   }
   getEnvironment() {
     const isHerdr = this.env.HERDR_ENV === "1";
-    const paneId = this.env.HERDR_PANE_ID || null;
+    const paneId = this.paneIdOverride ?? (this.env.HERDR_PANE_ID || null);
     const binPath = this.env.HERDR_BIN_PATH || null;
     const socketPath = this.env.HERDR_SOCKET_PATH || null;
     return {

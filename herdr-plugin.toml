@@ -80,4 +80,4 @@ command = ["sh", "plugin/node.sh", "dist/plugin/commands/doctor.js"]
 id = "doctor"
 title = "Gemini: doctor"
 contexts = ["pane"]
-command = ["sh", "-c", "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin herdr-gemini-cli --entrypoint doctor"]
+command = ["sh", "plugin/open-popup.sh", "doctor"]

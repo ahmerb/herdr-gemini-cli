@@ -157,7 +157,12 @@ For local development use `herdr plugin link .` and `gemini extensions link .` i
 
 Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin log list --plugin herdr-gemini-cli` shows each run's output.
 
-- **Clear blocked state:** _coming soon (#6)._
+- **Clear blocked state** (`herdr-gemini-cli.clear-blocked`): in a scratch pane, simulate the hooks with microsecond seqs (`us=$(node -e 'console.log(Date.now()*1000)')`):
+  1. `herdr pane report-agent <pane> --source gemini-cli --agent gemini-cli --state blocked --seq $us --agent-session-id test -- gemini --resume test`, focus the pane and run `herdr plugin action invoke herdr-gemini-cli.clear-blocked`. **Expected:** `herdr agent get <pane>` shows `agent: gemini-cli` with status `idle` (or `done` if the pane is unfocused); the log shows `pane <pane> reported idle`.
+  2. Report `working` with a new, higher seq. **Expected:** accepted (status `working`), so sequencing still works.
+  3. Invoke the action on a non-Gemini pane, or on a Gemini pane that isn't blocked. **Expected:** nothing changes; the log says `not a Gemini pane` / `is not blocked`.
+  4. Session survival: with a fake shell pane Herdr stores no session at all, so check it with a real Gemini session: get it blocked on a tool prompt, deny it, run the action, then `herdr agent get <pane>` must still show the `gemini-cli` `agent_session` (the action passes it along and never releases the pane).
+  Release the agent and close the scratch pane afterwards.
 - **New Gemini pane:** from a pane whose directory isn't the plugin root, run `herdr plugin action invoke herdr-gemini-cli.new-pane`. A focused split opens on the right, in that directory, running `gemini` (`herdr pane list` shows it with `agent: gemini`). Exiting `gemini` leaves the pane open at its shell. With `gemini` unavailable (no recorded `GEMINI_BIN` in `plugin/.paths` and not on the Herdr server's `PATH`), you get a `gemini not found` notification and no new pane.
 - **Reinstall / remove Gemini extension:** _coming soon (#8)._
 - **Doctor:** _coming soon (#9)._

@@ -75,7 +75,7 @@ Verify that the extension is active:
 gemini extensions list
 ```
 
-Confirm that `herdr-gemini-cli (0.1.0)` appears in the installed extensions list.
+Confirm that `herdr-gemini-cli (0.2.0)` appears in the installed extensions list.
 
 ---
 
@@ -168,6 +168,12 @@ For local development use `herdr plugin link .` and `gemini extensions link .` i
 ### Step 8: Herdr Plugin Actions
 
 Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin log list --plugin herdr-gemini-cli` shows each run's output.
+
+**Testing tips** (Herdr 0.9.5):
+- Herdr clears a fake agent (a hand-written `pane report-agent`) from a pane that is idle at its shell prompt within about a second. Run something in the scratch pane first, e.g. `herdr pane run <pane> "sleep 600"`.
+- `herdr plugin action invoke` always uses the pane that really has focus as the invocation context; setting `HERDR_PANE_ID` doesn't change it. To target a scratch pane without moving focus, send `plugin.action.invoke` over the socket (`$HERDR_SOCKET_PATH`, one JSON request per line) with an explicit context, e.g. `{"id":"t","method":"plugin.action.invoke","params":{"action_id":"herdr-gemini-cli.clear-blocked","context":{"focused_pane_id":"<pane>","focused_pane_agent":"gemini-cli","focused_pane_status":"blocked"}}}`.
+- A popup opened by an action rebuilds its context from the pane that really has focus, not from the action's context. Close a popup without a keypress with the socket request `popup.close`.
+- `gemini extensions list` prints to stderr, not stdout.
 
 - **Clear blocked state** (`herdr-gemini-cli.clear-blocked`): in a scratch pane, simulate the hooks with microsecond seqs (`us=$(node -e 'console.log(Date.now()*1000)')`):
   1. `herdr pane report-agent <pane> --source gemini-cli --agent gemini-cli --state blocked --seq $us --agent-session-id test -- gemini --resume test`, focus the pane and run `herdr plugin action invoke herdr-gemini-cli.clear-blocked`. **Expected:** `herdr agent get <pane>` shows `agent: gemini-cli` with status `idle` (or `done` if the pane is unfocused); the log shows `pane <pane> reported idle`.

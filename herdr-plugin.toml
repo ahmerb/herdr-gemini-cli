@@ -20,3 +20,32 @@ command = ["sh", "plugin/install-extension.sh"]
 
 # Node-based actions and panes start through the launcher:
 #   command = ["sh", "plugin/node.sh", "dist/plugin/commands/<name>.js"]
+
+# Reinstall / remove the Gemini CLI extension (#8). Each action opens a popup
+# that runs the script and waits for Enter, since action output only reaches
+# the plugin log.
+[[panes]]
+id = "reinstall-extension"
+title = "Gemini: reinstall extension"
+placement = "popup"
+width = "80%"
+height = "60%"
+command = ["sh", "plugin/run-in-popup.sh", "plugin/reinstall-extension.sh"]
+
+[[panes]]
+id = "remove-extension"
+title = "Gemini: remove extension"
+placement = "popup"
+width = "80%"
+height = "60%"
+command = ["sh", "plugin/run-in-popup.sh", "plugin/remove-extension.sh"]
+
+[[actions]]
+id = "reinstall-extension"
+title = "Gemini: reinstall extension"
+command = ["sh", "plugin/open-popup.sh", "reinstall-extension"]
+
+[[actions]]
+id = "remove-extension"
+title = "Gemini: remove extension"
+command = ["sh", "plugin/open-popup.sh", "remove-extension"]

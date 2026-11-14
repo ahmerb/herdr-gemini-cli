@@ -87,12 +87,14 @@ gemini extensions link .     # symlink the Gemini extension to this working tree
 
 ### Uninstalling
 
-`herdr plugin uninstall` only removes the Herdr plugin. Remove the Gemini extension separately:
+`herdr plugin uninstall` only removes the Herdr plugin, so remove the Gemini extension first with the "Gemini: remove extension" action (see [Reinstall / remove Gemini extension](#reinstall--remove-gemini-extension)):
 
 ```bash
+herdr plugin action invoke herdr-gemini-cli.remove-extension   # press Enter to close the popup
 herdr plugin uninstall herdr-gemini-cli
-gemini extensions uninstall herdr-gemini-cli
 ```
+
+If the plugin is already gone, remove the extension with Gemini directly: `gemini extensions uninstall herdr-gemini-cli`.
 
 If the Gemini extension stays installed, it keeps reporting pane state whenever you run Gemini CLI inside Herdr. Outside Herdr it does nothing.
 
@@ -118,7 +120,23 @@ _Coming soon ([#7](https://github.com/ahmerb/herdr-gemini-cli/issues/7))._
 
 ### Reinstall / remove Gemini extension
 
-_Coming soon ([#8](https://github.com/ahmerb/herdr-gemini-cli/issues/8))._
+Manage the Gemini CLI extension (the hooks that report pane state) without reinstalling the plugin:
+
+| Action id | Title | What it does |
+| :--- | :--- | :--- |
+| `herdr-gemini-cli.reinstall-extension` | Gemini: reinstall extension | Reinstalls the extension at the plugin's version, exactly like the install build step (`plugin/install-extension.sh`). Use it if the extension was removed, or Gemini CLI was installed after the plugin. |
+| `herdr-gemini-cli.remove-extension` | Gemini: remove extension | Runs `gemini extensions uninstall herdr-gemini-cli`. Safe to run when it is not installed. Run it before `herdr plugin uninstall`, which can't remove the extension. |
+
+```bash
+herdr plugin action invoke herdr-gemini-cli.reinstall-extension
+herdr plugin action invoke herdr-gemini-cli.remove-extension
+```
+
+Each action opens a popup that shows the output and stays open until you press Enter. Restart running Gemini CLI sessions afterwards so they load (or unload) the hooks.
+
+If the extension is a development link (`gemini extensions link .`, listed with `Type: link`), reinstalling would replace the link with a copy, so the reinstall popup asks first and keeps the link unless you answer `y`. Remove deletes the link (your working tree is untouched).
+
+If `gemini` isn't found, the popup says so. Install Gemini CLI, then run `herdr plugin update herdr-gemini-cli` (which records its location for plugin actions) or the reinstall action.
 
 ### Doctor
 

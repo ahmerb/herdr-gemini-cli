@@ -134,7 +134,7 @@ _Coming soon ([#8](https://github.com/ahmerb/herdr-gemini-cli/issues/8))._
 If the pane under the popup is a Gemini CLI pane, the doctor also sends a test `report-agent` with that pane's current state, so what Herdr shows doesn't change. Over any other pane (a shell, or another agent) it only makes read-only calls, so it never takes that pane over. Press any key to close the popup.
 
 ```bash
-herdr plugin action invoke doctor --plugin herdr-gemini-cli
+herdr plugin action invoke herdr-gemini-cli.doctor
 ```
 
 ### Session picker
@@ -168,7 +168,7 @@ Suggested bindings (none clash with Herdr's defaults or its example `prefix+alt+
 
 There are two doctors:
 
-- **Plugin doctor** (inside Herdr, recommended): run **Gemini: doctor** from Herdr's command palette, `herdr plugin action invoke doctor --plugin herdr-gemini-cli`, or `prefix+alt+d` if you added the [keybinding](#keybindings). It checks Herdr, Node.js, Gemini CLI, the Gemini extension, the Herdr socket and the registered Gemini panes (see [Doctor](#doctor)).
+- **Plugin doctor** (inside Herdr, recommended): run `herdr plugin action invoke herdr-gemini-cli.doctor`, or press `prefix+alt+d` if you added the [keybinding](#keybindings). It checks Herdr, Node.js, Gemini CLI, the Gemini extension, the Herdr socket and the registered Gemini panes (see [Doctor](#doctor)).
 - **CLI doctor**: run inside the Gemini CLI pane's shell (or any Herdr pane) to check environment detection and test reporting from that pane:
 
 ```bash

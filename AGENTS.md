@@ -34,9 +34,21 @@ Only one checkout can be linked at a time: the plugin id `herdr-gemini-cli` and 
 
 Follow these steps to manually test and inspect the integration in a live environment:
 
-### Step 1: Run the Built-In Doctor
+### Step 1: Run the Built-In Doctors
 
-Verify that the integration correctly identifies your Herdr environment and can invoke the Herdr binary:
+**Plugin doctor** (needs the plugin linked or installed, see Step 7): open it over a pane with `herdr plugin action invoke doctor --plugin herdr-gemini-cli` (or `prefix+alt+d`). To run it without Herdr's popup, e.g. while developing:
+
+```bash
+HERDR_PLUGIN_CONTEXT_JSON='{"focused_pane_id":"<scratch pane id>"}' node dist/plugin/commands/doctor.js </dev/null
+```
+
+**Expected Output:**
+- A ✅/❌ line per check (Herdr version, Node.js, recorded paths, Herdr socket, `gemini-cli` panes and states, `gemini --version`, the `herdr-gemini-cli` extension's version/type/ref), each ❌ with a `Fix:` line.
+- Over a `gemini-cli` pane: `✅ Test report: delivered to <pane> (state: <its current state>)`, and the pane's state is unchanged.
+- Over any other pane: `➖ Test report: skipped (... checked read-only)`. Confirm with `herdr pane get <pane>` that its agent and state did not change.
+- Ends with `Press any key to close` and waits for a key (only when stdin is a TTY).
+
+**CLI doctor**: verify that the integration identifies your Herdr environment from inside a pane and can invoke the Herdr binary:
 
 ```bash
 ./bin/herdr-gemini-cli.js
@@ -45,7 +57,7 @@ Verify that the integration correctly identifies your Herdr environment and can 
 **Expected Output (Inside Herdr):**
 - Displays `HERDR_ENV: 1`, active pane ID, binary path, and socket path.
 - Verifies Herdr binary execution (`herdr --version`).
-- Emits a test report ping to Herdr: `✅ Test report delivered successfully to Herdr!`.
+- Emits a test report ping to Herdr (as `idle`, agent `gemini-cli`, on its own pane): `✅ Test report delivered successfully to Herdr!`.
 
 ---
 
@@ -160,5 +172,5 @@ Link the plugin (`herdr plugin link .`), then check each action. `herdr plugin l
 - **Clear blocked state:** _coming soon (#6)._
 - **New Gemini pane:** _coming soon (#7)._
 - **Reinstall / remove Gemini extension:** _coming soon (#8)._
-- **Doctor:** _coming soon (#9)._
+- **Doctor:** `herdr plugin action invoke doctor --plugin herdr-gemini-cli` opens the "Gemini doctor" popup (see Step 1). Over a plain shell pane, every check runs and no report is sent (`herdr pane get <pane>` unchanged). Over a pane running Gemini CLI, `✅ Test report: delivered`. With the Gemini extension removed, `❌ Gemini extension: herdr-gemini-cli is not installed` with the reinstall fix hint.
 - **Session picker:** _coming soon (#10)._

@@ -4,6 +4,30 @@ import { spawnSync, type SpawnSyncReturns } from "child_process";
 /** Upper bound for each Herdr invocation the doctor makes. */
 export const DOCTOR_TIMEOUT_MS = 5000;
 
+/** The parts of a spawnSync result the doctors look at. */
+export type CommandResult = Pick<
+  SpawnSyncReturns<string>,
+  "status" | "signal" | "stdout" | "stderr" | "error"
+>;
+
+/** Runs a command to completion; injectable so doctors can be unit tested. */
+export type CommandRunner = (
+  command: string,
+  args: string[],
+  timeoutMs: number
+) => CommandResult;
+
+/**
+ * Default CommandRunner: spawnSync with a timeout and no stdin, so a child
+ * can never wait on (or steal) the terminal's input.
+ */
+export const runCommand: CommandRunner = (command, args, timeoutMs) =>
+  spawnSync(command, args, {
+    encoding: "utf8",
+    timeout: timeoutMs,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
 export interface DoctorOptions {
   client?: HerdrClient;
   timeoutMs?: number;
@@ -14,7 +38,7 @@ export interface DoctorOptions {
  * null if the process ran and exited with status 0.
  */
 export function describeSpawnFailure(
-  res: SpawnSyncReturns<string>,
+  res: CommandResult,
   timeoutMs: number
 ): string | null {
   if (res.error) {
